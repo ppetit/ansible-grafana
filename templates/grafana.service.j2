@@ -1,0 +1,49 @@
+{{ ansible_managed | comment }}
+
+[Unit]
+Description=Grafana
+After=network-online.target
+
+[Service]
+Type=simple
+Environment="GOMAXPROCS={{ ansible_processor_vcpus|default(ansible_processor_count) }}"
+User=grafana
+Group=grafana
+ExecStart=/usr/local/bin/grafana --config {{ grafana_config_dir }}/grafana.ini
+
+CapabilityBoundingSet=CAP_SET_UID
+LimitNOFILE=65000
+LockPersonality=true
+NoNewPrivileges=true
+MemoryDenyWriteExecute=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectHome=true
+RemoveIPC=true
+RestrictSUIDSGID=true
+
+{% if grafana_systemd_version | int >= 231 %}
+ReadWritePaths={{ grafana_data_dir }}
+{% else %}
+ReadWriteDirectories={{ grafana_data_dir }}
+{% endif %}
+
+{% if grafana_systemd_version | int >= 232 %}
+PrivateUsers=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+{% else %}
+ProtectSystem=full
+{% endif %}
+
+{% if http_proxy is defined %}
+Environment="HTTP_PROXY={{ http_proxy }}"{% if https_proxy is defined %} "HTTPS_PROXY={{ https_proxy }}{% endif %}"
+{% endif %}
+
+SyslogIdentifier=grafana
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

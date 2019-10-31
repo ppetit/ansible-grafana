@@ -1,0 +1,99 @@
+---
+- name: Assert usage of systemd as an init system
+  assert:
+    that: ansible_service_mgr == 'systemd'
+    msg: "This module only works with systemd"
+
+- name: Get systemd version
+  command: systemctl --version
+  changed_when: false
+  check_mode: false
+  register: __systemd_version
+  tags:
+    - skip_ansible_lint
+
+- name: Set systemd version fact
+  set_fact:
+    grafana_systemd_version: "{{ __systemd_version.stdout_lines[0].split(' ')[-1] }}"
+
+- name: Allow to bind to port in SELinux
+  seport:
+    ports: "{{ grafana_port }}"
+    proto: tcp
+    setype: http_port_t
+    state: present
+  when:
+    - ansible_version.full is version_compare('2.4', '>=')
+    - ansible_selinux.status == "enabled"
+
+- name: create grafana system group
+  group:
+    name: grafana
+    system: true
+    state: present
+
+- name: create grafana system user
+  user:
+    name: grafana
+    system: true
+    shell: "/sbin/nologin"
+    group: grafana
+    createhome: false
+    home: "{{ grafana_data_dir }}"
+
+- name: create grafana data directory
+  file:
+    path: "{{ grafana_data_dir }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: 0755
+
+- name: download grafana binary to local folder
+  become: false
+  get_url:
+    url: "{{grafana_download_url}}/grafana-{{ grafana_version }}.linux-{{ go_arch }}.tar.gz"
+    dest: "/tmp/grafana-{{ grafana_version }}.linux-{{ go_arch }}.tar.gz"
+    checksum: "sha256:{{ grafana_checksum | default(omit) }}"
+    url_username: "{{ grafana_download_auth.username | default(omit) }}"
+    url_password: "{{ grafana_download_auth.password | default(omit) }}"
+    validate_certs: "{{ grafana_download_auth.validate_certs | default(True) }}"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  run_once: true
+  delegate_to: localhost
+  check_mode: false
+  no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
+
+- name: create systemd service unit
+  template:
+    src: grafana.service.j2
+    dest: /etc/systemd/system/grafana.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: unpack grafana binaries
+  become: false
+  unarchive:
+    src: "/tmp/grafana-{{ grafana_version }}.linux-{{ go_arch }}.tar.gz"
+    dest: "/tmp"
+    creates: "/tmp/grafana-{{ grafana_version }}"
+  delegate_to: localhost
+  run_once: true
+  check_mode: false
+
+- name: propagate grafana-server and grafana-cli binaries
+  copy:
+    src: "/tmp/grafana-{{ grafana_version }}/bin/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+    owner: root
+    group: root
+  with_items:
+    - grafana-server
+    - grafana-cli
+  notify:
+    - restart grafana
