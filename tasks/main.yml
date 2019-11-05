@@ -43,11 +43,10 @@
   become: true
   when: grafana_standalone_plugins != []
   tags:
-    - grafana_install
+    - grafana_configure
 
 - include: plugins.yml
-  when:
-    - grafana_plugins != []
+  when: grafana_plugins != []
   tags:
     - grafana_configure
 
