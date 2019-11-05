@@ -52,7 +52,7 @@
 - name: download grafana binary to local folder
   become: false
   get_url:
-    url: "{{grafana_download_url}}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
     dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
     checksum: "sha256:{{ grafana_checksum | default(omit) }}"
     url_username: "{{ grafana_download_auth.username | default(omit) }}"
