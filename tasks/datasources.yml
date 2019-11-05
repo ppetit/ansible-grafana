@@ -17,7 +17,7 @@
 - name: Create/Update datasources file (provisioning)
   become: true
   copy:
-    dest: "/etc/grafana/provisioning/datasources/ansible.yml"
+    dest: "{{ grafana_config_dir }}/provisioning/datasources/ansible.yml"
     content: |
       apiVersion: 1
       deleteDatasources: []

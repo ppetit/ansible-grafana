@@ -6,15 +6,15 @@
     owner: root
     group: grafana
   with_items:
-    - "/etc/grafana"
-    - "/etc/grafana/datasources"
-    - "/etc/grafana/provisioning"
-    - "/etc/grafana/provisioning/datasources"
+    - "{{ grafana_config_dir }}"
+    - "{{ grafana_config_dir }}/datasources"
+    - "{{ grafana_config_dir }}/provisioning"
+    - "{{ grafana_config_dir }}/provisioning/datasources"
 
 - name: Create grafana main configuration file
   template:
     src: grafana.ini.j2
-    dest: /etc/grafana/grafana.ini
+    dest: "{{ grafana_config_dir }}/grafana.ini"
     owner: root
     group: grafana
     mode: 0640
@@ -24,7 +24,7 @@
 - name: Create grafana LDAP configuration file
   template:
     src: ldap.toml.j2
-    dest: "{{ grafana_auth.ldap.config_file | default('/etc/grafana/ldap.toml') }}"
+    dest: "{{ grafana_auth.ldap.config_file | default(grafana_config_dir + '/ldap.toml') }}"
     owner: root
     group: grafana
     mode: 0640

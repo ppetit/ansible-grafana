@@ -1,7 +1,7 @@
 {{ ansible_managed | comment }}
 
 [Unit]
-Description=Grafana
+Description=Grafana Server
 After=network-online.target
 
 [Service]
@@ -9,7 +9,8 @@ Type=simple
 Environment="GOMAXPROCS={{ ansible_processor_vcpus|default(ansible_processor_count) }}"
 User=grafana
 Group=grafana
-ExecStart=/usr/local/bin/grafana --config {{ grafana_config_dir }}/grafana.ini
+ExecStart=/usr/local/bin/grafana-server --config {{ grafana_config_dir }}/grafana.ini \
+    --homepath={{ grafana_home }}
 
 CapabilityBoundingSet=CAP_SET_UID
 LimitNOFILE=65000
@@ -42,8 +43,9 @@ ProtectSystem=full
 Environment="HTTP_PROXY={{ http_proxy }}"{% if https_proxy is defined %} "HTTPS_PROXY={{ https_proxy }}{% endif %}"
 {% endif %}
 
-SyslogIdentifier=grafana
+SyslogIdentifier=grafana-server
 Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

@@ -110,7 +110,7 @@
     - name: Create/Update dashboards file (provisioning)
       become: true
       copy:
-        dest: "/etc/grafana/provisioning/dashboards/ansible.yml"
+        dest: "{{ grafana_config_dir}}/provisioning/dashboards/ansible.yml"
         content: |
           apiVersion: 1
           providers:

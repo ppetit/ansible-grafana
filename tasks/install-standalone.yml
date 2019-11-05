@@ -52,9 +52,10 @@
 - name: download grafana binary to local folder
   become: false
   get_url:
-#   url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar"
-    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar"
+#   url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
+#   dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
 #   checksum: "sha256:{{ grafana_checksum | default(omit) }}"
     url_username: "{{ grafana_download_auth.username | default(omit) }}"
     url_password: "{{ grafana_download_auth.password | default(omit) }}"
@@ -71,7 +72,7 @@
 - name: create systemd service unit
   template:
     src: grafana.service.j2
-    dest: /etc/systemd/system/grafana.service
+    dest: /etc/systemd/system/grafana-server.service
     owner: root
     group: root
     mode: 0644
@@ -79,20 +80,20 @@
 - name: unpack grafana binaries
   become: false
   unarchive:
-    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    dest: "/tmp"
-    creates: "/tmp/grafana-{{ grafana_version }}"
-  delegate_to: localhost
+#   src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
+    dest: "/usr/share/grafana-{{ grafana_version }}"
   run_once: true
   check_mode: false
 
-- name: propagate grafana-server and grafana-cli binaries
-  copy:
-    src: "/tmp/grafana-{{ grafana_version }}/bin/{{ item }}"
+- name: Create grafana binary symlinks
+  file:
+    src: "/usr/share/grafana-{{ grafana_version }}/bin/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: 0755
     owner: root
     group: root
+    state: link
   with_items:
     - grafana-server
     - grafana-cli
