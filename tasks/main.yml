@@ -22,8 +22,15 @@
     - grafana_notifications
     - grafana_dashboards
 
-- include: "{{ (grafana_standalone_install | bool) == true | ternary('install.yml', 'install-standalone.yml') }}"
+- include: install-standalone.yml
   become: true
+  when: grafana_standalone_install
+  tags:
+    - grafana_install
+
+- include: install.yml
+  become: true
+  when: not grafana_standalone_install
   tags:
     - grafana_install
 
