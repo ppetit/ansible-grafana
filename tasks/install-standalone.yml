@@ -82,13 +82,13 @@
   unarchive:
 #   src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
     src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
-    dest: "/usr/share/grafana-{{ grafana_version }}"
+    dest: "{{ grafana_home_dir }}"
   run_once: true
   check_mode: false
 
 - name: Create grafana binary symlinks
   file:
-    src: "/usr/share/grafana-{{ grafana_version }}/bin/{{ item }}"
+    src: "{{ grafana_home_dir }}/bin/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: 0755
     owner: root

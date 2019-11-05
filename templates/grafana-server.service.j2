@@ -10,7 +10,7 @@ Environment="GOMAXPROCS={{ ansible_processor_vcpus|default(ansible_processor_cou
 User=grafana
 Group=grafana
 ExecStart=/usr/local/bin/grafana-server --config {{ grafana_config_dir }}/grafana.ini \
-    --homepath={{ grafana_home }}
+    --homepath {{ grafana_home_dir }}
 
 CapabilityBoundingSet=CAP_SET_UID
 LimitNOFILE=65000
