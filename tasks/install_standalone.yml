@@ -41,6 +41,14 @@
     createhome: false
     home: "{{ grafana_data_dir }}"
 
+- name: create systemd service unit
+  template:
+    src: grafana-server.service.j2
+    dest: /etc/systemd/system/grafana-server.service
+    owner: root
+    group: root
+    mode: 0644
+    
 - name: create grafana data directory
   file:
     path: "{{ grafana_data_dir }}"
@@ -68,14 +76,6 @@
   delegate_to: localhost
   check_mode: false
   no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
-
-- name: create systemd service unit
-  template:
-    src: grafana-server.service.j2
-    dest: /etc/systemd/system/grafana-server.service
-    owner: root
-    group: root
-    mode: 0644
 
 - name: unpack grafana binaries
   become: false

@@ -1,0 +1,33 @@
+---
+
+- name: Download the plugins
+  become: false
+  get_url:
+    url: "{{ grafana_download_url }}/plugins/{{ item.name }}/{{ item.version }}/{{ item.file }}"
+    dest: "/tmp/{{ item.file }}"
+    url_username: "{{ grafana_download_auth.username | default(omit) }}"
+    url_password: "{{ grafana_download_auth.password | default(omit) }}"
+    validate_certs: "{{ grafana_download_auth.validate_certs | default(true) }}"
+  register: _download_plugin_binary
+  until: _download_plugin_binary is succeeded
+  retries: 5
+  delay: 2
+  delegate_to: localhost
+  run_once: true
+  check_mode: false
+  no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
+
+- name: Unpack the plugin archive
+  become: true
+  unarchive:
+    src: "/tmp/{{ item.file }}"
+    dest: "{{ grafana_data_dir }}/plugins"
+    mode: 0644
+    owner: root
+    group: root
+  check_mode: false
+  notify:
+    - restart grafana
+
+
+

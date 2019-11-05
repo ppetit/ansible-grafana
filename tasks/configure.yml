@@ -69,7 +69,7 @@
 
 - name: Enable grafana to ports lower than port 1024
   capabilities:
-    path: /usr/sbin/grafana-server
+    path: "{{ grafana_binary_dir}}/grafana-server"
     capability: CAP_NET_BIND_SERVICE+ep
     state: present
   when:

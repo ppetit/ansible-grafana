@@ -16,6 +16,7 @@ grafana_logs_dir: "/var/log/grafana"
 grafana_data_dir: "/var/lib/grafana"
 grafana_home_dir: "/etc/grafana"
 grafana_config_dir: "{{ grafana_home_dir }}"
+grafana_bin_dir: /usr/sbin
 
 grafana_address: "0.0.0.0"
 grafana_port: 3000
@@ -198,6 +199,9 @@ grafana_image_storage: {}
 # Plugins from https://grafana.com/plugins
 grafana_plugins: []
 #  - raintank-worldping-app
+
+# Plugins from local repository
+grafana_standalone_plugins: []
 
 # Dashboards from https://grafana.com/dashboards
 grafana_dashboards: []
