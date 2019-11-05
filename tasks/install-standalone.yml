@@ -71,7 +71,7 @@
 
 - name: create systemd service unit
   template:
-    src: grafana.service.j2
+    src: grafana-server.service.j2
     dest: /etc/systemd/system/grafana-server.service
     owner: root
     group: root
