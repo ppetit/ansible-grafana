@@ -41,6 +41,7 @@
 
 - include: install_standalone_plugins.yml
   become: true
+  with_items: "{{ grafana_standalone_plugins }}"
   when: grafana_standalone_plugins != []
   tags:
     - grafana_configure
