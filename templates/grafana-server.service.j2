@@ -7,8 +7,8 @@ After=network-online.target
 [Service]
 Type=simple
 Environment="GOMAXPROCS={{ ansible_processor_vcpus|default(ansible_processor_count) }}"
-User=grafana
-Group=grafana
+User={{ grafana_system_user }}
+Group={{ grafana_group_user }}
 ExecStart=/usr/local/bin/grafana-server --config {{ grafana_config_dir }}/grafana.ini \
     --homepath {{ grafana_home_dir }}
 
