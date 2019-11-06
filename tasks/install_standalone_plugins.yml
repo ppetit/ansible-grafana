@@ -22,9 +22,9 @@
   unarchive:
     src: "/tmp/{{ item.file }}"
     dest: "{{ grafana_data_dir }}/plugins"
-    mode: 0644
-    owner: root
-    group: root
+    mode: "u=rwX,g=rX,o=rX"
+    owner: grafana
+    group: grafana
   check_mode: false
   notify:
     - restart grafana
