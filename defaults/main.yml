@@ -217,6 +217,9 @@ grafana_dashboards: []
 #    revision_id: '1'
 #    datasource: 'Prometheus'
 
+# Dashboards from local repository
+grafana_standalone_dashboards: []
+
 grafana_dashboards_dir: "dashboards"
 
 # Alert notification channels to configure

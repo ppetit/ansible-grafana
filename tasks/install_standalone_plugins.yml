@@ -1,5 +1,4 @@
 ---
-
 - name: Download the plugins
   become: false
   get_url:

@@ -1,0 +1,40 @@
+---
+- become: false
+  delegate_to: localhost
+  run_once: true
+  block:
+    - name: Create local grafana dashboard directory
+      tempfile:
+        state: directory
+      register: _tmp_dashboards
+      changed_when: false
+      check_mode: false
+
+    - name: Copy dashboards
+      copy:
+        src: "dashboards/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
+        dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
+      when: dashboard.enabled
+      check_mode: false
+
+    - name: Set the correct data source name in the dashboard
+      replace:
+        dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
+        regexp: '"(?:\${)?DS_[A-Z0-9_-]+(?:})?"'
+        replace: '"{{ dashboard.datasource }}"'
+      when: dashboard.enabled
+      check_mode: false
+
+- name: import grafana dashboards
+  grafana_dashboard:
+    grafana_url: "{{ grafana_api_url }}"
+    grafana_user: "{{ grafana_security.admin_user }}"
+    grafana_password: "{{ grafana_security.admin_password }}"
+    path: "{{ _tmp_dashboards.path }}/{{ item }}"
+    message: Updated by ansible
+    state: present
+    overwrite: true
+  no_log: true
+  with_fileglob:
+    - "{{ _tmp_dashboards.path }}/*.json"
+  when: not grafana_use_provisioning
