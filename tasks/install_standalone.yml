@@ -34,10 +34,10 @@
 
 - name: create grafana system user
   user:
-    name: grafana
+    name: "{{ grafana_system_user }}"
     system: true
     shell: "/sbin/nologin"
-    group: grafana
+    group: "{{ grafana_group_user }}"
     createhome: false
     home: "{{ grafana_data_dir }}"
 
@@ -53,8 +53,8 @@
   file:
     path: "{{ grafana_data_dir }}"
     state: directory
-    owner: grafana
-    group: grafana
+    owner: "{{ grafana_system_user }}"
+    group: "{{ grafana_group_user }}"
     mode: 0755
 
 - name: download grafana binary to local folder

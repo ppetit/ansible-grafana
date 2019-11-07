@@ -12,8 +12,8 @@
   file:
     path: "{{ grafana_data_dir }}/dashboards"
     recurse: true
-    owner: grafana
-    group: grafana
+    owner: "{{ grafana_system_user }}"
+    group: "{{ grafana_group_user }}"
     mode: 0640
   listen: "provisioned dashboards changed"
 
