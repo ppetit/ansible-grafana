@@ -13,7 +13,6 @@
       copy:
         src: "dashboards/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
         dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
-      when: dashboard.enabled
       check_mode: false
 
     - name: Set the correct data source name in the dashboard
@@ -21,7 +20,6 @@
         dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
         regexp: '"(?:\${)?DS_[A-Z0-9_-]+(?:})?"'
         replace: '"{{ dashboard.datasource }}"'
-      when: dashboard.enabled
       check_mode: false
   delegate_to: localhost
   run_once: true
@@ -71,7 +69,7 @@
       register: _dashboards_present
       when: grafana_provisioning_synced
   
-    - name: Import grafana dashboards
+    - name: Import local grafana dashboards
       become: true
       copy:
         src: "{{ item }}"
@@ -87,7 +85,7 @@
         _dashboards_copied_list: "{{ _dashboards_copied | json_query('results[*].dest') | default([]) }}"
       when: grafana_provisioning_synced
 
-    - name: Remove dashboards not present on deployer machine (synchronize)
+    - name: Remove dashboards not present on deployment machine (synchronize)
       become: true
       file:
         path: "{{ item }}"
