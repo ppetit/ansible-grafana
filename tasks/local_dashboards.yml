@@ -1,5 +1,5 @@
 ---
-- name: Setup standalone grafana dashboards
+- name: Setup local grafana dashboards
   become: no
   block:
     - name: Create local grafana dashboard directory
@@ -26,7 +26,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: Import standalone grafana dashboards through the API
+- name: Import local grafana dashboards through the API
   grafana_dashboard:
     grafana_url: "{{ grafana_api_url }}"
     grafana_user: "{{ grafana_security.admin_user }}"
@@ -40,7 +40,7 @@
     - "{{ _tmp_dashboards.path }}/*.json"
   when: not grafana_use_provisioning
 
-- name: Import standalone grafana dashboards through provisioning
+- name: Import local grafana dashboards through provisioning
   block:
     - name: Create/Update dashboards file (provisioning)
       become: true

@@ -22,15 +22,15 @@
     - grafana_notifications
     - grafana_dashboards
 
-- include: install_standalone.yml
+- include: local_install.yml
   become: true
-  when: grafana_standalone_install
+  when: grafana_local_install
   tags:
     - grafana_install
 
 - include: install.yml
   become: true
-  when: not grafana_standalone_install
+  when: not grafana_local_install
   tags:
     - grafana_install
 
@@ -39,15 +39,15 @@
   tags:
     - grafana_configure
 
-- include: install_standalone_plugins.yml
-  become: true
-  with_items: "{{ grafana_standalone_plugins }}"
-  when: grafana_standalone_plugins != []
+- include: plugins.yml
+  when: grafana_plugins != []
   tags:
     - grafana_configure
 
-- include: plugins.yml
-  when: grafana_plugins != []
+- include: local_plugins.yml
+  become: true
+  with_items: "{{ grafana_local_plugins }}"
+  when: grafana_local_plugins != []
   tags:
     - grafana_configure
 
@@ -106,21 +106,18 @@
     - grafana_notifications
     - grafana_run
 
-- name: "Check if there are any dashboards in {{ grafana_dashboards_dir }}"
-  become: false
-  find:
-    paths: "{{ grafana_dashboards_dir }}"
-    patterns: '*.json'
-  delegate_to: localhost
-  run_once: true
-  register: found_dashboards
+- include: dashboards.yml
+  when: grafana_dashboards | length > 0
   tags:
     - grafana_configure
     - grafana_dashboards
     - grafana_run
 
-- include: dashboards.yml
-  when: grafana_dashboards | length > 0 or found_dashboards.matched > 0
+- include: local_dashboards.yml
+  with_items: "{{ grafana_local_dashboards }}"
+  loop_control:
+    loop_var: dashboard
+  when: grafana_local_dashboards != []
   tags:
     - grafana_configure
     - grafana_dashboards

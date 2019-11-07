@@ -141,7 +141,7 @@
         dest: "{{ grafana_data_dir }}/dashboards/{{ item | basename }}"
       with_fileglob:
         - "{{ _tmp_dashboards.path }}/*"
-        - "{{ grafana_dashboards_dir }}/*.json"
+#       - "{{ grafana_dashboards_dir }}/*.json"
       register: _dashboards_copied
       notify: "provisioned dashboards changed"
 
