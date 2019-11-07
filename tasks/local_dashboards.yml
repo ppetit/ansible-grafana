@@ -9,13 +9,13 @@
       changed_when: false
       check_mode: false
 
-    - name: Copy dashboards
+    - name: "Copy local dashboard {{ item.name }}"
       copy:
         src: "dashboards/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
         dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
       check_mode: false
 
-    - name: Set the correct data source name in the dashboard
+    - name: "Set the correct data source name in {{ dashboard.name }} dashboard"
       replace:
         dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
         regexp: '"(?:\${)?DS_[A-Z0-9_-]+(?:})?"'
@@ -24,7 +24,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: Import local grafana dashboards through the API
+- name: "Import local {{ item.name }} dashboard through the API"
   grafana_dashboard:
     grafana_url: "{{ grafana_api_url }}"
     grafana_user: "{{ grafana_security.admin_user }}"
@@ -38,7 +38,7 @@
     - "{{ _tmp_dashboards.path }}/*.json"
   when: not grafana_use_provisioning
 
-- name: Import local grafana dashboards through provisioning
+- name: "Import local {{ item.name }} dashboard through provisioning"
   block:
     - name: Create/Update dashboards file (provisioning)
       become: true
@@ -69,7 +69,7 @@
       register: _dashboards_present
       when: grafana_provisioning_synced
   
-    - name: Import local grafana dashboards
+    - name: "Import local dashboard file {{ item | basename }}"
       become: true
       copy:
         src: "{{ item }}"

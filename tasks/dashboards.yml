@@ -62,7 +62,7 @@
     # This regex can be tested and understood better by looking at the
     # matches and non-matches in https://regex101.com/r/f4Gkvg/6
 
-    - name: Set the correct data source name in the dashboard
+    - name: "Set the correct data source name in {{ item.dashboard_id }} dashboard"
       replace:
         dest: "{{ _tmp_dashboards.path }}/{{ item.dashboard_id }}.json"
         regexp: '"(?:\${)?DS_[A-Z0-9_-]+(?:})?"'
