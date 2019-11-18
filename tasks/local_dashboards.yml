@@ -2,16 +2,16 @@
 - name: Setup local grafana dashboards
   become: no
   block:
-    - name: Create local grafana dashboard directory
+    - name: Create temporary dashboard directory
       tempfile:
         state: directory
       register: _tmp_dashboards
       changed_when: false
       check_mode: false
 
-    - name: "Copy local dashboard {{ item.name }}"
+    - name: "Copy local dashboard {{ dashboard.name }}"
       copy:
-        src: "dashboards/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
+        src: "files/grafana/dashboards/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
         dest: "{{ _tmp_dashboards.path }}/{{ dashboard.name }}_rev{{ dashboard.revision_id}}.json"
       check_mode: false
 
@@ -24,7 +24,7 @@
   delegate_to: localhost
   run_once: true
 
-- name: "Import local {{ item.name }} dashboard through the API"
+- name: "Import local dashboard {{ item.name }} through the API"
   grafana_dashboard:
     grafana_url: "{{ grafana_api_url }}"
     grafana_user: "{{ grafana_security.admin_user }}"
@@ -38,7 +38,7 @@
     - "{{ _tmp_dashboards.path }}/*.json"
   when: not grafana_use_provisioning
 
-- name: "Import local {{ item.name }} dashboard through provisioning"
+- name: "Import local dashboards through provisioning"
   block:
     - name: Create/Update dashboards file (provisioning)
       become: true
@@ -69,7 +69,7 @@
       register: _dashboards_present
       when: grafana_provisioning_synced
   
-    - name: "Import local dashboard file {{ item | basename }}"
+    - name: "Import local dashboard {{ item | basename }} through provisioning"
       become: true
       copy:
         src: "{{ item }}"
