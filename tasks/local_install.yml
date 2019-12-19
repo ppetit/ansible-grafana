@@ -70,11 +70,21 @@
   until: _download_archive is succeeded
   retries: 5
   delay: 2
+  run_once: true
+  delegate_to: localhost
   check_mode: false
   no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
 
-- name: unpack grafana binaries
-  become: false
+- name: Propagate grafana archive 
+  copy:
+    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Unpack grafana archive 
+  become: true 
   unarchive:
     src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
     dest: /usr/share
