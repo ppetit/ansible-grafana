@@ -1,21 +1,8 @@
 ---
-- name: Create temporary plugins directory
-  tempfile:
-    state: directory
-  register: _tmp_plugins
-  changed_when: false
-  check_mode: false
-
-- name: "Copy local plugin {{ item.name }}"
-  copy:
-    src: "files/grafana/plugins/{{ item.file }}"
-    dest: "{{ _tmp_plugins.path }}/{{ item.file }}"
-  check_mode: false
-
-- name: "Unpack the plugin {{ item.name }} archive"
+- name: "Bump the plugin {{ item.name }} archive"
   become: true
   unarchive:
-    src: "/_tmp_plugins.path/{{ item.file }}"
+    src: "files/grafana/plugins/{{ item.file }}"
     dest: "{{ grafana_data_dir }}/plugins"
     mode: "u=rwX,g=rX,o=rX"
     owner: "{{ grafana_system_user }}"
