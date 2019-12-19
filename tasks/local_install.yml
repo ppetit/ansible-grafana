@@ -57,12 +57,16 @@
     group: "{{ grafana_group_user }}"
     mode: 0755
 
+## Note PP. the gzip version n Nexus is broken apparently due to
+## FDJ downloading / analysis process.
 - name: download grafana binary to local folder
   become: false
   get_url:
-    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    checksum: "sha256:{{ grafana_checksum | default(omit) }}"
+#   url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar"
+#   dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
+#   checksum: "sha256:{{ grafana_checksum | default(omit) }}"
     url_username: "{{ grafana_download_auth.username | default(omit) }}"
     url_password: "{{ grafana_download_auth.password | default(omit) }}"
     validate_certs: "{{ grafana_download_auth.validate_certs | default(True) }}"
@@ -77,8 +81,10 @@
 
 - name: Propagate grafana archive 
   copy:
-    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+#   src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
+#   dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
     mode: 0755
     owner: root
     group: root
@@ -86,7 +92,8 @@
 - name: Unpack grafana archive 
   become: true 
   unarchive:
-    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+#   src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
     dest: /usr/share
   check_mode: false
 
