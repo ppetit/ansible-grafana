@@ -1,25 +1,21 @@
 ---
-- name: Download the plugins
-  become: false
-  get_url:
-    url: "{{ grafana_download_url }}/plugins/{{ item.name }}/{{ item.version }}/{{ item.file }}"
-    dest: "/tmp/{{ item.file }}"
-    url_username: "{{ grafana_download_auth.username | default(omit) }}"
-    url_password: "{{ grafana_download_auth.password | default(omit) }}"
-    validate_certs: "{{ grafana_download_auth.validate_certs | default(true) }}"
-  register: _download_plugin_binary
-  until: _download_plugin_binary is succeeded
-  retries: 5
-  delay: 2
-  delegate_to: localhost
-  run_once: true
+- name: Create temporary plugins directory
+  tempfile:
+    state: directory
+  register: _tmp_plugins
+  changed_when: false
   check_mode: false
-  no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
 
-- name: Unpack the plugin archive
+- name: "Copy local plugin {{ item.name }}"
+  copy:
+    src: "files/grafana/plugins/{{ item.file }}"
+    dest: "{{ _tmp_plugins.path }}/{{ item.file }}"
+  check_mode: false
+
+- name: "Unpack the plugin {{ item.name }} archive"
   become: true
   unarchive:
-    src: "/tmp/{{ item.file }}"
+    src: "/_tmp_plugins.path/{{ item.file }}"
     dest: "{{ grafana_data_dir }}/plugins"
     mode: "u=rwX,g=rX,o=rX"
     owner: "{{ grafana_system_user }}"
@@ -27,6 +23,3 @@
   check_mode: false
   notify:
     - restart grafana
-
-
-
