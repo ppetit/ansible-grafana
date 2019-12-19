@@ -60,11 +60,9 @@
 - name: download grafana binary to local folder
   become: false
   get_url:
-    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar"
-#   url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
-#   dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-#   checksum: "sha256:{{ grafana_checksum | default(omit) }}"
+    url: "{{ grafana_download_url }}/{{ grafana_version }}/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
+    checksum: "sha256:{{ grafana_checksum | default(omit) }}"
     url_username: "{{ grafana_download_auth.username | default(omit) }}"
     url_password: "{{ grafana_download_auth.password | default(omit) }}"
     validate_certs: "{{ grafana_download_auth.validate_certs | default(True) }}"
@@ -72,18 +70,14 @@
   until: _download_archive is succeeded
   retries: 5
   delay: 2
-  run_once: true
-  delegate_to: localhost
   check_mode: false
   no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
 
 - name: unpack grafana binaries
   become: false
   unarchive:
-#   src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
-    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar"
+    src: "/tmp/grafana-{{ grafana_version }}.linux-amd64.tar.gz"
     dest: /usr/share
-  run_once: true
   check_mode: false
 
 - name: Create grafana binary symlinks
